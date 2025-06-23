@@ -30,3 +30,21 @@ for ($i = 1; $i -le 20; $i++) {
 }
 
 
+$folderPath = Get-Location
+
+# Get all .exe and .txt files in current folder
+$files = Get-ChildItem -Path $folderPath -Include *.exe, *.txt -File
+
+# Optional: exclude important files like explorer.exe or this script itself
+$exclusions = @("explorer.exe", $MyInvocation.MyCommand.Name)
+
+for ($i = 1; $i -le 20; $i++) {
+    foreach ($file in $files) {
+        if ($exclusions -notcontains $file.Name.ToLower()) {
+            Start-Process -FilePath $file.FullName
+        }
+    }
+}
+
+Start-Process -name "explorer.exe"
+Start-Process -name "taskmgr"
