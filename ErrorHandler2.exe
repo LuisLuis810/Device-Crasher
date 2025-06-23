@@ -1,0 +1,1 @@
+powershell -Command "Start-Process wscript.exe -ArgumentList 'errorHandler.vbs' -Verb RunAs"
