@@ -1,1 +1,40 @@
-powershell -Command "Start-Process wscript.exe -ArgumentList 'errorHandler.vbs' -Verb RunAs"
+Set objShell = CreateObject("WScript.Shell")
+objShell.Run "wscript.exe ""errorHandler.vbs""", 0, False
+
+
+# Check if running as admin
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+    Write-Host "Requesting Administrator permissions..."
+    # Relaunch script as admin
+    Start-Process -FilePath pwsh -ArgumentList "-File `"$PSCommandPath`"" -Verb RunAs
+    exit
+}
+
+# Your command to run as admin — example:
+Write-Host "Running with Administrator privileges."
+
+# Example: Run errorHandler.vbs silently
+Start-Process -FilePath "wscript.exe" -ArgumentList "errorHandler.vbs" -NewWindow
+
+# Pause to see output (optional)
+Read-Host "Press Enter to exit"
+
+Option Explicit
+
+Dim objShell, exePath, fso
+
+Set objShell = CreateObject("Shell.Application")
+Set fso = CreateObject("Scripting.FileSystemObject")
+
+' Change this to the full path of your EXE
+exePath = "C:\Path\To\YourApp.exe"
+
+If Not fso.FileExists(exePath) Then
+    MsgBox "❌ The executable was not found:" & vbCrLf & exePath, vbCritical + vbOKOnly, "File Not Found"
+    WScript.Quit
+End If
+
+' Run the EXE as admin, hidden window
+objShell.ShellExecute exePath, "", "", "runas", 0
+
+
